@@ -1,8 +1,18 @@
+"""
+Main running file for our game. # TODO: Improve header documentation
+
+Status: Not Finished
+"""
+
 import pygame
+
+WIDTH = 1280
+HEIGHT = 720
+
 
 
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
 dt = 0
