@@ -1,75 +1,73 @@
-#! /usr/bin/env python
-
-# Use pyaudio to open the microphone and run aubio.pitch on the stream of
-# incoming samples. If a filename is given as the first argument, it will
-# record 5 seconds of audio to this location. Otherwise, the script will
-# run until Ctrl+C is pressed.
-
-# Examples:
-#    $ ./python/demos/demo_pyaudio.py
-#    $ ./python/demos/demo_pyaudio.py /tmp/recording.wav
-
-import pyaudio
-import sys
+import asyncio
 import numpy as np
-import aubio
+import sounddevice as sd
+import pygame
 
-# initialise pyaudio
-p = pyaudio.PyAudio()
+shared_state = {"decibel": 50}
 
-# open stream
-buffer_size = 1024
-pyaudio_format = pyaudio.paFloat32
-n_channels = 1
-samplerate = 44100
-stream = p.open(format=pyaudio_format,
-                channels=n_channels,
-                rate=samplerate,
-                input=True,
-                frames_per_buffer=buffer_size)
+# --- Microphone Reader ---
+async def mic_reader():
+    samplerate = 44100
+    blocksize = 1024
 
-if len(sys.argv) > 1:
-    # record 5 seconds
-    output_filename = sys.argv[1]
-    record_duration = 5 # exit 1
-    outputsink = aubio.sink(sys.argv[1], samplerate)
-    total_frames = 0
-else:
-    # run forever
-    outputsink = None
-    record_duration = None
+    def audio_callback(indata, frames, time, status):
+        volume_norm = np.linalg.norm(indata) * 10
+        decibel = np.clip(volume_norm, 0, 100)
+        shared_state["decibel"] = decibel
 
-# setup pitch
-tolerance = 0.8
-win_s = 4096 # fft size
-hop_s = buffer_size # hop size
-pitch_o = aubio.pitch("default", win_s, hop_s, samplerate)
-pitch_o.set_unit("midi")
-pitch_o.set_tolerance(tolerance)
+    # sounddevice stream runs in background threads
+    with sd.InputStream(callback=audio_callback, channels=1, samplerate=samplerate, blocksize=blocksize):
+        while True:
+            await asyncio.sleep(0.1)  # Just keep yielding control
 
-print("*** starting recording")
-while True:
-    try:
-        audiobuffer = stream.read(buffer_size)
-        signal = np.frombuffer(audiobuffer, dtype=np.float32)
+# --- Pygame Loop ---
+async def run_game():
+    pygame.init()
+    screen = pygame.display.set_mode((1280, 720))
+    clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 36)
 
-        pitch = pitch_o(signal)[0]
-        confidence = pitch_o.get_confidence()
+    player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
-        print("{} / {}".format(pitch,confidence))
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
 
-        if outputsink:
-            outputsink(signal, len(signal))
+        tick_speed = max(10, min(120, 1.5 * int(shared_state["decibel"])))
 
-        if record_duration:
-            total_frames += len(signal)
-            if record_duration * samplerate < total_frames:
-                break
-    except KeyboardInterrupt:
-        print("*** Ctrl+C pressed, exiting")
-        break
+        screen.fill((0, 0, 0))
 
-print("*** done recording")
-stream.stop_stream()
-stream.close()
-p.terminate()
+        pygame.draw.circle(screen, "red", player_pos, 20)
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_w]:
+            player_pos.y -= 10
+        if keys[pygame.K_s]:
+            player_pos.y += 10
+        if keys[pygame.K_a]:
+            player_pos.x -= 10
+        if keys[pygame.K_d]:
+            player_pos.x += 10
+        if keys[pygame.K_SPACE]:
+            tick_speed = 100
+
+        decibelText = font.render(f"Decibel: {shared_state['decibel']:.1f}", True, (255, 255, 255))
+        tickText = font.render(f"TickSpeed: {tick_speed:.1f}", True, (255, 255, 255))
+
+        clock.tick(tick_speed)
+        screen.blit(decibelText, (50, 130))
+        screen.blit(tickText, (50, 80))
+        pygame.display.flip()
+
+        await asyncio.sleep(0)  # Let asyncio run other tasks
+
+# --- Entry point ---
+async def main():
+    mic_task = asyncio.create_task(mic_reader())
+    game_task = asyncio.create_task(run_game())
+    await asyncio.gather(mic_task, game_task)
+
+if __name__ == "__main__":
+    asyncio.run(main())
