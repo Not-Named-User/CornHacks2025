@@ -3,7 +3,7 @@ Player Class for Super Loud
 
 Status: Not finished
 """
-import game
+from game import *
 class Player(Character):    # Child class of Parent class character
 
     def __init__(self, name, health = 10, level = 1):
