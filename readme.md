@@ -1,1 +1,5 @@
-https://prod.liveshare.vsengsaas.visualstudio.com/join?C1FA12F3383EE5EDF94816FDB5903B083D7F
+Authors: Andrew Jacobson and Stanley Allen
+
+A sound-based monkey banana shooter game
+Stay quiet, because if the microphone detects louder noise,
+game tick speed increases and so do the monkeys.
