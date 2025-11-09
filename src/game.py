@@ -18,11 +18,12 @@ class Level(Game):
 class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     
     def __init__(self, pos, health = 3, radius=25, color=(0, 255, 0)):
-        self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
-        self.image.fill(color)
+        super().__init__()
+        self.image = pygame.image.load("../assets/images/gorilla.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (200, 200))
         self.rect = self.image.get_rect()
-        self.rect.center = (300, 400)
         self.pos = pos
+        self.rect.center = (self.pos)
         self.health = health
         self.timeBoost = 0
         self.projectile_speed = 10
@@ -47,12 +48,16 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     def move(self, keys):
         if keys[pygame.K_w]:
             self.pos.y -= 10
+            self.rect.centery = self.pos.y
         if keys[pygame.K_s]:
             self.pos.y += 10
+            self.rect.centery = self.pos.y
         if keys[pygame.K_a]:
             self.pos.x -= 10
+            self.rect.centerx = self.pos.x
         if keys[pygame.K_d]:
             self.pos.x += 10
+            self.rect.centerx = self.pos.x
         if keys[pygame.K_LSHIFT]:
             self.timeBoost = 100
         # if keys[pygame.K_SPACE]:
