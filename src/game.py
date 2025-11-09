@@ -34,9 +34,6 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
             return False
         else:
             return True
-
-    def printCharacterStats(self):
-        print(f"Name: {self.name}, Health: {self.health} Level: {self.level}")
     
     def shoot(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -60,7 +57,6 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
             self.rect.centerx = self.pos.x
         if keys[pygame.K_LSHIFT]:
             self.timeBoost = 100
-
         
 class Enemy(pygame.sprite.Sprite):
     
@@ -81,8 +77,6 @@ class Projectile(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (200, 200))
         self.rect = self.image.get_rect()
 
-        #self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
-        #pygame.draw.circle(self.image, color, (radius, radius), radius)
         self.rect = self.image.get_rect(center=(x, y))
 
         # Calculate direction vector
