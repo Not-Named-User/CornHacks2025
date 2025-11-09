@@ -38,10 +38,12 @@ async def run_game():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
+
+    all_sprites = pygame.sprite.Group()
     
     # Get Player position
     player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-    player = Player(screen, player_pos, 3, 25, (0, 255, 0))
+    player = Player(player_pos, 3, 25, (0, 255, 0))
 
     # ----------- Game Loop ----------- 
 
@@ -58,12 +60,17 @@ async def run_game():
         pygame.draw.circle(screen, "red", player.pos, 20)
 
         keys = pygame.key.get_pressed()
+        if (keys[pygame.K_SPACE]):
+            bullet = player.shoot()
+            all_sprites.add(bullet)
         player.move(keys)
 
         tick_speed = max(10, min(120, 1.5 * int(shared_state["decibel"])), player.timeBoost)
         decibelText = font.render(f"Decibel: {shared_state['decibel']:.1f}", True, (255, 255, 255))
         tickText = font.render(f"TickSpeed: {tick_speed:.1f}", True, (255, 255, 255))
-
+       
+        all_sprites.draw(screen)
+        all_sprites.update()
         clock.tick(tick_speed)
         player.timeBoost = 0
         screen.blit(decibelText, (50, 130))

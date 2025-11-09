@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
         self.health = health
         self.timeBoost = 0
         self.projectile_speed = 10
-        self.bullet_size = 3
+        self.bullet_size = 10
 
     def isAlive(self):
         if self.health <= 0:
@@ -39,7 +39,10 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     
     def shoot(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
+        #print(f"Mouse pos: ({mouse_x}, {mouse_y})")
         bullet = Projectile(self.pos.x, self.pos.y, mouse_x, mouse_y, self.projectile_speed, (100, 100, 100), self.bullet_size)
+
+        return bullet
 
     def move(self, keys):
         if keys[pygame.K_w]:
@@ -52,16 +55,16 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
             self.pos.x += 10
         if keys[pygame.K_LSHIFT]:
             self.timeBoost = 100
-        if keys[pygame.K_SPACE]:
-            self.shoot()
+        # if keys[pygame.K_SPACE]:
+        #     self.shoot()
 
 
         
 class Enemy(pygame.sprite.Sprite):
     
-    def __init__(self, screen, pos, health=1, radius=25, color=(32, 85, 208)):
+    def __init__(self, pos, health=1, radius=25, color=(32, 85, 208)):
         self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
-        self.screen = screen
+        #self.screen = screen
         self.image.fill("blue")
         self.rect = self.image.get_rect()
         self.rect.center = (300, 400)
@@ -88,15 +91,8 @@ class Projectile(pygame.sprite.Sprite):
 
     def checkState(self, object):
         if(pygame.sprite.groupcollide(self, object, True)  == True ):
-            
+            return 1
 
     def update(self):
         self.rect.x += self.vel_x
         self.rect.y += self.vel_y
-        
-        # Check for collisions between projectiles and enemies
-        collisions = pygame.sprite.groupcollide(projectiles_group, enemies_group) True
-        for projectile, enemies_hit in collisions.items():
-            # Handle collision effects (e.g., remove projectile, damage enemy)
-            # The 'True, True' in groupcollide means both projectile and enemy are removed on collision
-            pass
