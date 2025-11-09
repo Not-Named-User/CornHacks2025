@@ -5,14 +5,13 @@ Shooter based game where the player is a gorilla that shoots bananas
 Author: Andrew Jacobson, Stanley Allen
 Date: 11/9/25
 
-Status: Not Finished
 """
 import asyncio
 import numpy as np
 import sounddevice as sd
 import pygame
 from game import *
-
+import random
 
 shared_state = {"decibel": 50, "running": True}
 
@@ -41,22 +40,31 @@ async def run_game():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Super Loud")
+    
     # Setup icon
     icon = pygame.image.load("../assets/images/banana.png").convert_alpha()
     pygame.display.set_icon(icon)
+    
     backgroud = pygame.image.load("../assets/images/jungle_background.png")
     backgroud = pygame.transform.scale(backgroud, (WIDTH, HEIGHT))
+    
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
 
     all_sprites = pygame.sprite.Group()
+    enemy_group = pygame.sprite.Group()
     
     # Get Player position
     player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-    player = Player(player_pos, 3, 25, (0, 255, 0))
+    player = Player(player_pos, 3)
     all_sprites.add(player)
 
-    # ----------- Game Loop ----------- 
+    ### ADD ENEMIES
+    enemy_pos = pygame.Vector2(100, 200)
+    enemy1 = Enemy(enemy_pos)
+    enemy_group.add(enemy1)
+
+    # # # Game Loop # #  #
 
     # Quits the game when X button is pressed
     while shared_state["running"]:
@@ -68,16 +76,19 @@ async def run_game():
         
         screen.fill((0, 0, 0))
         screen.blit(backgroud, (0,0))
-        
+
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_SPACE]):
             bullet = player.shoot()
             all_sprites.add(bullet)
         player.move(keys)
-
-        # mouse_x, mouse_y = pygame.mouse.get_pos()
-        # if (mouse_x < player.pos.x):
-        #     pygame.transform.flip(player.image, True, False)
+        enemy1.move(player)
+        
+        if(pygame.sprite.groupcollide(enemy_group, all_sprites, False, True) ):
+            # Teleport monkey to random location outside of screen
+            enemy1.speed += 5
+            enemy1.pos.x = random.randrange(-50, WIDTH + 50)
+            enemy1.pos.y = random.randrange(-50, HEIGHT + 50)
 
         tick_speed = max(10, min(120, 1.5 * int(shared_state["decibel"])), player.timeBoost)
         decibelText = font.render(f"Decibel: {shared_state['decibel']:.1f}", True, (255, 255, 255))
@@ -85,6 +96,8 @@ async def run_game():
        
         all_sprites.draw(screen)
         all_sprites.update()
+        enemy_group.draw(screen)
+        enemy_group.update()
         clock.tick(tick_speed)
         player.timeBoost = 0
         screen.blit(decibelText, (50, 130))

@@ -5,19 +5,10 @@ Status: Not finished
 """
 import pygame
 import math
-class Game:
-    #Todo
-    def __init__(self, level):
-        pass
-
-
-
-class Level(Game):
-    pass
 
 class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     
-    def __init__(self, pos, health = 3, radius=25, color=(0, 255, 0)):
+    def __init__(self, pos, health = 3):
         super().__init__()
         self.image = pygame.image.load("../assets/images/gorilla.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (200, 200))
@@ -37,7 +28,6 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     
     def shoot(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        #print(f"Mouse pos: ({mouse_x}, {mouse_y})")
         bullet = Projectile(self.pos.x-80, self.pos.y - 40, mouse_x, mouse_y, self.projectile_speed, (100, 100, 100), self.bullet_size)
 
         return bullet
@@ -61,18 +51,48 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
 class Enemy(pygame.sprite.Sprite):
     
     def __init__(self, pos, health=1, radius=25, color=(32, 85, 208)):
-        self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
-        #self.screen = screen
-        self.image.fill("blue")
+        super().__init__()
+        self.image = pygame.image.load("../assets/images/monkey.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (75, 75))
         self.rect = self.image.get_rect()
-        self.rect.center = (300, 400)
+        self.rect.center = [ pos[0], pos[1] ]
         self.pos = pos
         self.health = health
+        self.speed = 5
+        self.vel_x = 0
+        self.vel_y = 0
 
+    def isAlive(self):
+        if self.health <= 0:
+            return False
+        else:
+            return True
+    
+    def move(self, target):
+        dx = target.pos.x - self.pos.x
+        dy = target.pos.y - self.pos.y
+        distance = math.sqrt(dx**2 + dy**2)
+        if distance == 0:  # Avoid division by zero
+            self.vel_x = 0
+            self.vel_y = 0
+        else:
+            self.vel_x = (dx / distance) * self.speed
+            self.vel_y = (dy / distance) * self.speed
+
+            self.pos.x += self.vel_x
+            self.pos.y += self.vel_y
+            self.rect.center = (self.pos.x, self.pos.y)
+
+    def update(self):
+        self.rect.x += self.vel_x
+        self.rect.y += self.vel_y
+        self.rect.center = (self.pos.x, self.pos.y)
+        
+        
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, x, y, target_x, target_y, speed, color, radius):
+   
+    def __init__(self, x, y, target_x, target_y, speed, radius, bullet_size):
         super().__init__()
-
         self.image = pygame.image.load("../assets/images/banana.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (75, 75))
         self.rect = self.image.get_rect()
@@ -92,7 +112,7 @@ class Projectile(pygame.sprite.Sprite):
 
     def checkState(self, object):
         if(pygame.sprite.groupcollide(self, object, True)  == True ):
-            return 1
+            return True
 
     def update(self):
         self.rect.x += self.vel_x
