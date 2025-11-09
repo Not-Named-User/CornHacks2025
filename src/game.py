@@ -15,15 +15,23 @@ class Level(Game):
 
 class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     
-    def __init__(self, health, position, raidus=25, color=(0, 255, 0)):
-        super.__init__()
+    def __init__(self, pos, health = 3, radius=25, color=(0, 255, 0)):
         self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
-        self.position = list(position)
+        self.image.fill(color)
+        #self.rect = self.image_get_rect()
+        #self.rect.center = (300, 400)
+        self.pos = pos
+        self.health = health
 
+    def isAlive(self):
+        if self.health <= 0:
+            return False
+        else:
+            return True
 
     def printCharacterStats(self):
         print(f"Name: {self.name}, Health: {self.health} Level: {self.level}")
 
-class Enemy(Character):
+class Enemy(pygame.sprite.Sprite):
     pass
     

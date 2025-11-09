@@ -38,9 +38,9 @@ async def run_game():
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
 
-    player = Player("name")  # TODO: Initialize player
     player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-    player.alive = True
+    player = Player(player_pos, 3, 25, (0, 255, 0))
+    #player.pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
     while shared_state["running"]:
         for event in pygame.event.get():
@@ -53,17 +53,17 @@ async def run_game():
 
         screen.fill((0, 0, 0))
 
-        pygame.draw.circle(screen, "red", player_pos, 20)
+        pygame.draw.circle(screen, "red", player.pos, 20)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
-            player_pos.y -= 10
+            player.pos.y -= 10
         if keys[pygame.K_s]:
-            player_pos.y += 10
+            player.pos.y += 10
         if keys[pygame.K_a]:
-            player_pos.x -= 10
+            player.pos.x -= 10
         if keys[pygame.K_d]:
-            player_pos.x += 10
+            player.pos.x += 10
         if keys[pygame.K_SPACE]:
             tick_speed = 100
 
@@ -82,7 +82,6 @@ async def main():
     mic_task = asyncio.create_task(mic_reader())
     game_task = asyncio.create_task(run_game())
     await asyncio.gather(mic_task, game_task)
-
 
 if __name__ == "__main__":
     asyncio.run(main())
