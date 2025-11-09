@@ -38,7 +38,7 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     def shoot(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         #print(f"Mouse pos: ({mouse_x}, {mouse_y})")
-        bullet = Projectile(self.pos.x, self.pos.y, mouse_x, mouse_y, self.projectile_speed, (100, 100, 100), self.bullet_size)
+        bullet = Projectile(self.pos.x-80, self.pos.y - 40, mouse_x, mouse_y, self.projectile_speed, (100, 100, 100), self.bullet_size)
 
         return bullet
 
@@ -74,7 +74,7 @@ class Projectile(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.image.load("../assets/images/banana.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (200, 200))
+        self.image = pygame.transform.scale(self.image, (75, 75))
         self.rect = self.image.get_rect()
 
         self.rect = self.image.get_rect(center=(x, y))

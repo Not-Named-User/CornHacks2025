@@ -40,6 +40,12 @@ async def run_game():
     # Setup Screen
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Super Loud")
+    # Setup icon
+    icon = pygame.image.load("../assets/images/banana.png").convert_alpha()
+    pygame.display.set_icon(icon)
+    backgroud = pygame.image.load("../assets/images/jungle_background.png")
+    backgroud = pygame.transform.scale(backgroud, (WIDTH, HEIGHT))
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
 
@@ -61,16 +67,17 @@ async def run_game():
                 return
         
         screen.fill((0, 0, 0))
-
+        screen.blit(backgroud, (0,0))
+        
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_SPACE]):
             bullet = player.shoot()
             all_sprites.add(bullet)
         player.move(keys)
 
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        if (mouse_x < player.pos.x):
-            pygame.transform.flip(player.image, True, False)
+        # mouse_x, mouse_y = pygame.mouse.get_pos()
+        # if (mouse_x < player.pos.x):
+        #     pygame.transform.flip(player.image, True, False)
 
         tick_speed = max(10, min(120, 1.5 * int(shared_state["decibel"])), player.timeBoost)
         decibelText = font.render(f"Decibel: {shared_state['decibel']:.1f}", True, (255, 255, 255))
@@ -82,6 +89,7 @@ async def run_game():
         player.timeBoost = 0
         screen.blit(decibelText, (50, 130))
         screen.blit(tickText, (50, 80))
+        
         pygame.display.flip()
         
         await asyncio.sleep(0)  # Let asyncio run other tasks
