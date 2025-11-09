@@ -24,16 +24,13 @@ class Character:
     def take_damage(self, amount):
         self.health -= amount
 
-<<<<<<< Updated upstream
     """
-=======
-"""
->>>>>>> Stashed changes
 Player Class for Super Loud
 
 Status: Not finished
 """
-class Player(Character):    # Child class of Parent class character
+import game
+class Player(game.Character):    # Child class of Parent class character
 
     def __init__(self, name, health = 10, level = 1):
         self.name = name
@@ -54,8 +51,4 @@ class Player(Character):    # Child class of Parent class character
     
     def printCharacterStats(self):
         print(f"Name: {self.name}, Health: {self.health} Level: {self.level}")
-<<<<<<< Updated upstream
     
-=======
-       
->>>>>>> Stashed changes
