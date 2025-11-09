@@ -18,8 +18,8 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     def __init__(self, pos, health = 3, radius=25, color=(0, 255, 0)):
         self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
         self.image.fill(color)
-        #self.rect = self.image_get_rect()
-        #self.rect.center = (300, 400)
+        self.rect = self.image.get_rect()
+        self.rect.center = (300, 400)
         self.pos = pos
         self.health = health
 
