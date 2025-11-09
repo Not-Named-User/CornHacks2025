@@ -33,48 +33,43 @@ HEIGHT = 720
 
 # --- Pygame Loop ---
 async def run_game():
+    # Setup Screen
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 36)
-
+    
+    # Get Player position
     player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-    player = Player(player_pos, 3, 25, (0, 255, 0))
-    #player.pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+    player = Player(screen, player_pos, 3, 25, (0, 255, 0))
 
+    # ----------- Game Loop ----------- 
+
+    # Quits the game when X button is pressed
     while shared_state["running"]:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 shared_state["running"] = False
                 return
-
-        tick_speed = max(10, min(120, 1.5 * int(shared_state["decibel"])))
-
+        
         screen.fill((0, 0, 0))
 
         pygame.draw.circle(screen, "red", player.pos, 20)
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            player.pos.y -= 10
-        if keys[pygame.K_s]:
-            player.pos.y += 10
-        if keys[pygame.K_a]:
-            player.pos.x -= 10
-        if keys[pygame.K_d]:
-            player.pos.x += 10
-        if keys[pygame.K_SPACE]:
-            tick_speed = 100
+        player.move(keys)
 
+        tick_speed = max(10, min(120, 1.5 * int(shared_state["decibel"])), player.timeBoost)
         decibelText = font.render(f"Decibel: {shared_state['decibel']:.1f}", True, (255, 255, 255))
         tickText = font.render(f"TickSpeed: {tick_speed:.1f}", True, (255, 255, 255))
 
         clock.tick(tick_speed)
+        player.timeBoost = 0
         screen.blit(decibelText, (50, 130))
         screen.blit(tickText, (50, 80))
         pygame.display.flip()
-
+        
         await asyncio.sleep(0)  # Let asyncio run other tasks
 
 # --- Entry point ---

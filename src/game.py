@@ -4,10 +4,12 @@ Contains various classes for the game
 Status: Not finished
 """
 import pygame
+import math
 class Game:
     #Todo
     def __init__(self, level):
         pass
+
 
 
 class Level(Game):
@@ -22,6 +24,9 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
         self.rect.center = (300, 400)
         self.pos = pos
         self.health = health
+        self.timeBoost = 0
+        self.projectile_speed = 10
+        self.bullet_size = 3
 
     def isAlive(self):
         if self.health <= 0:
@@ -31,7 +36,67 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
 
     def printCharacterStats(self):
         print(f"Name: {self.name}, Health: {self.health} Level: {self.level}")
-
-class Enemy(pygame.sprite.Sprite):
-    pass
     
+    def shoot(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        bullet = Projectile(self.pos.x, self.pos.y, mouse_x, mouse_y, self.projectile_speed, (100, 100, 100), self.bullet_size)
+
+    def move(self, keys):
+        if keys[pygame.K_w]:
+            self.pos.y -= 10
+        if keys[pygame.K_s]:
+            self.pos.y += 10
+        if keys[pygame.K_a]:
+            self.pos.x -= 10
+        if keys[pygame.K_d]:
+            self.pos.x += 10
+        if keys[pygame.K_LSHIFT]:
+            self.timeBoost = 100
+        if keys[pygame.K_SPACE]:
+            self.shoot()
+
+
+        
+class Enemy(pygame.sprite.Sprite):
+    
+    def __init__(self, screen, pos, health=1, radius=25, color=(32, 85, 208)):
+        self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+        self.screen = screen
+        self.image.fill("blue")
+        self.rect = self.image.get_rect()
+        self.rect.center = (300, 400)
+        self.pos = pos
+        self.health = health
+
+class Projectile(pygame.sprite.Sprite):
+    def __init__(self, x, y, target_x, target_y, speed, color, radius):
+        super().__init__()
+        self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, color, (radius, radius), radius)
+        self.rect = self.image.get_rect(center=(x, y))
+
+        # Calculate direction vector
+        dx = target_x - x
+        dy = target_y - y
+        distance = math.sqrt(dx**2 + dy**2)
+        if distance == 0:  # Avoid division by zero
+            self.vel_x = 0
+            self.vel_y = 0
+        else:
+            self.vel_x = (dx / distance) * speed
+            self.vel_y = (dy / distance) * speed
+
+    def checkState(self, object):
+        if(pygame.sprite.groupcollide(self, object, True)  == True ):
+            
+
+    def update(self):
+        self.rect.x += self.vel_x
+        self.rect.y += self.vel_y
+        
+        # Check for collisions between projectiles and enemies
+        collisions = pygame.sprite.groupcollide(projectiles_group, enemies_group) True
+        for projectile, enemies_hit in collisions.items():
+            # Handle collision effects (e.g., remove projectile, damage enemy)
+            # The 'True, True' in groupcollide means both projectile and enemy are removed on collision
+            pass
