@@ -15,10 +15,13 @@ class Level(Game):
 
 class Player(pygame.sprite.Sprite):    # Child class of Parent class character
     
-    def __init__(self, health, position, raidus=25, color=(0, 255, 0)):
+    def __init__(self, position, health=3, radius=25, color=(0, 255, 0)):
         super.__init__()
         self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
         self.position = list(position)
+        self.health = health
+
+    
 
     def printCharacterStats(self):
         print(f"Name: {self.name}, Health: {self.health} Level: {self.level}")
