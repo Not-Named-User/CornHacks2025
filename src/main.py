@@ -1,5 +1,9 @@
 """
-Main running file for our game. # TODO: Improve header documentation
+[Super Loud]
+Shooter based game where the player is a gorilla that shoots bananas
+
+Author: Andrew Jacobson, Stanley Allen
+Date: 11/9/25
 
 Status: Not Finished
 """

@@ -60,9 +60,6 @@ class Player(pygame.sprite.Sprite):    # Child class of Parent class character
             self.rect.centerx = self.pos.x
         if keys[pygame.K_LSHIFT]:
             self.timeBoost = 100
-        # if keys[pygame.K_SPACE]:
-        #     self.shoot()
-
 
         
 class Enemy(pygame.sprite.Sprite):
@@ -79,8 +76,13 @@ class Enemy(pygame.sprite.Sprite):
 class Projectile(pygame.sprite.Sprite):
     def __init__(self, x, y, target_x, target_y, speed, color, radius):
         super().__init__()
-        self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, color, (radius, radius), radius)
+
+        self.image = pygame.image.load("../assets/images/banana.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (200, 200))
+        self.rect = self.image.get_rect()
+
+        #self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+        #pygame.draw.circle(self.image, color, (radius, radius), radius)
         self.rect = self.image.get_rect(center=(x, y))
 
         # Calculate direction vector
